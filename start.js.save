@@ -1,0 +1,36 @@
+const io = require('onoff').Gpio;
+const Lcd = require('lcdi2c');
+const childProcess = require('child_process')
+const os = require('os');
+
+const ifaces = os.networkInterfaces();
+console.log(ifaces);
+
+var lcd = new Lcd(3, 0x27, 16, 2);
+lcd.clear();
+var menu = {
+  data: [{
+    title: "Autonomous"
+  }, {
+    title: "Info"
+  }],
+  fns: {}
+}
+function initLcd() {
+  for(let i = 0; i < 2; i++)
+    lcd.println(" " + menu.data[i].title, i + 1);
+  lcd.println(String.fromCharCode(223));
+
+}
+function lcdChars() {
+  for(let i = 0; i < 2; i++) {
+    let str = "";
+    for(let j = 0; j < 16; j++)
+      str += String.fromCharCode()
+    lcd.println(str, i + 1);
+    console.log(str);
+  }
+}
+lcd.on();
+lcdChars();
+//initLcd();

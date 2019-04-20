@@ -1,102 +1,67 @@
-const io = require('onoff');
-const Lcd = require('lcd');
-const childProcess = require('child_process');
+const io = require('onoff').Gpio;
+const Lcd = require('lcdi2c');
+const childProcess = require('child_process')
+const os = require('os');
 
-var lcd = new Lcd({
-  rs: 4,
-  e: 8,
-  data: [25, 24, 23, 18],
-  cols: 16,
-  rows: 2
-});
-const menu = [{
-  title: "Actions",
-  type: menu,
-  children: [{
-    title: "Pull from Git",
-    type: "command"
-  }]
-}, {
-  title: "Autonomous",
-  type: "options",
-  children: [
-    "Left",
-    "Bottom Left",
-    "Botton Right",
-    "Right"
-  ]
-}, {
-  title: "Info",
-  type: "menu",
-  children: [{
-    title: "IP Address",
-    type: "info"
-  }, {
-    title: "",
-    type: "info"
-  }]
-}, {
-  title: "Settings"
-  type: "menu",
-  children: [{
-    title: "LCD",
-    type: "menu",
-    children: [{
-      title: "Brightness",
-      type: "setting",
-      setting: {
-        type: "slider"
-      }
-    }, {
-      title: "Contrast",
-      type: "setting",
-      setting: {
-        type: "slider"
-      }
-    }]
-  }, {
-    title: "Reboot",
-    type: "command"
-  }]
-}]
+const ifaces = os.networkInterfaces();
+console.log(ifaces);
 
-function displayMenu(menu) {
-  lcd.print(menu[0], () => {
-    lcd.setCursor(0, 1);
-    lcd.print(menu[1]);
-  });
-  lcd.print(menu[1], () => {
-    
-  });
-  for (let item of menu) {
-    
+var lcd = new Lcd(3, 0x27, 16, 2);
+lcd.clear();
+var menu = {
+  data: [{
+    title: "Autonomous"
+  }, {
+    title: "Info"
+  }],
+  fns: {},
+  pos: {
+    cursor: 0,
+    scroll: 0,
+    maxScroll: 0
   }
 }
-function startLcd() {
-  lcd.setCursor(0, 0);
-  lcd.print(
-}
-
-function runScript(scriptPath, callback = function(){}) {
-
-    var invoked = false;
-
-    var process = childProcess.fork(scriptPath);
-
-    process.on('error', function (err) {
-        if (invoked) return;
-        invoked = true;
-        callback(err);
-    });
-
-    process.on('exit', function (code) {
-        if (invoked) return;
-        invoked = true;
-        var err = code === 0 ? null : new Error('exit code ' + code);
-        callback(err);
-    });
+menu.down = () => {
+  if(cursor < maxScroll) {
+    cursor++;
+    if(cursor > scroll) {
+      scroll++;
+      displayMenu(menu, scroll)
 
 }
+menu.up = () => {
+  
+}
+function initLcd() {
+  displayMenu(menu);
+  lcd.println(String.fromCharCode(126), 1);
+  var flag = false;
+  setInterval(() => {
+    if(flag) {
+      lcd.println(String.fromCharCode(126), 1);
+      lcd.println(" ", 2);
+    } else {
+      lcd.println(" ", 1);
+      lcd.println(String.fromCharCode(126), 2);
+    }
+    flag = !flag
+  }, 50);
+}
+function displayMenu(menu, index = 0) {
+  for(let i = 0; i < 2 || i; i++)
+    lcd.println(" " + menu[i + index].title, i + 1);
+  this.menu.pos.maxScroll = menu.length();
+}
 
-
-runScript("/home/pi/rpi-test/displayip.js")
+function lcdChars() {
+  for(let i = 0; i < 2; i++) {
+    let str = "";
+    for(let j = 0; j < 16; j++)
+      str += String.fromCharCode(j * (i + 1));
+    lcd.println(str, i + 1);
+    console.log(str);
+  }
+}
+lcd.on();
+//lcdChars();
+initLcd();
