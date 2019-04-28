@@ -2,10 +2,41 @@ const io = require('onoff').Gpio;
 const Lcd = require('lcdi2c');
 const childProcess = require('child_process')
 const os = require('os');
+const readline = require('readline');
+
+readline.emitKeypressEvents(process.stdin);
+try {
+  process.stdin.setRawMode(true);
+
+  process.stdin.on('keypress', (str, key) => {
+    console.log(key.name);
+    if (key.ctrl && key.name == 'c') {
+      process.exit();
+    } else if(key.name == "up") {
+      menu.up();
+    } else if(key.name == "down") {
+      menu.down();
+    }
+  });
+} catch(e) {
+ console.log(e);
+}
 
 const ifaces = os.networkInterfaces();
 console.log(ifaces);
 
+var leds = [new io(5, 'out'), new io(6, 'out'), new io(13, 'out')];
+function initLeds() {
+  for(var led of leds) {
+    led.writeSync(0);
+  }
+  setTimeout(() => {
+    for(var led of leds) {
+      led.writeSync(1);
+    }
+  }, 500);
+}
+initLeds();
 var lcd = new Lcd(3, 0x27, 16, 2);
 lcd.clear();
 var menu = {
@@ -13,44 +44,67 @@ var menu = {
     title: "Autonomous"
   }, {
     title: "Info"
+  }, {
+    title: "Settings"
   }],
   fns: {},
   pos: {
-    cursor: 0,
+    arrow: 0,
     scroll: 0,
     maxScroll: 0
   }
 }
 menu.down = () => {
-  if(cursor < maxScroll) {
-    cursor++;
-    if(cursor > scroll) {
-      scroll++;
-      displayMenu(menu, scroll)
-
+  console.log('\n\nmenu down');
+  console.log(`
+menu.pos.arrow: ${menu.pos.arrow},
+menu.pos.scroll: ${menu.pos.scroll},
+menu.pos.maxScroll: ${menu.pos.maxScroll},
+menu.pos.arrow (${menu.pos.arrow}) < menu.pos.maxScroll (${menu.pos.maxScroll}): ${menu.pos.arrow < menu.pos.maxScroll},
+menu.pos.arrow > menu.pos.scroll + 1: ${menu.pos.arrow > menu.pos.scroll + 1}`);
+  if(menu.pos.arrow < menu.pos.maxScroll) {
+    menu.pos.arrow++;
+    if(menu.pos.arrow > menu.pos.scroll + 1) {
+      menu.pos.scroll++;
+      displayMenu();
+    }
+  }
+  setArrow();
+  console.log(`
+menu.pos.arrow: ${menu.pos.arrow},
+menu.pos.scroll: ${menu.pos.scroll},
+menu.pos.maxScroll: ${menu.pos.maxScroll}`);
 }
 menu.up = () => {
-  
-}
-function initLcd() {
-  displayMenu(menu);
-  lcd.println(String.fromCharCode(126), 1);
-  var flag = false;
-  setInterval(() => {
-    if(flag) {
-      lcd.println(String.fromCharCode(126), 1);
-      lcd.println(" ", 2);
-    } else {
-      lcd.println(" ", 1);
-      lcd.println(String.fromCharCode(126), 2);
+  if(menu.pos.arrow > 0) {
+    menu.pos.arrow--;
+    if(menu.pos.arrow < menu.pos.scroll) {
+      menu.pos.scroll--;
+      displayMenu();
     }
-    flag = !flag
-  }, 50);
+  }
+  setArrow();
 }
-function displayMenu(menu, index = 0) {
-  for(let i = 0; i < 2 || i; i++)
-    lcd.println(" " + menu[i + index].title, i + 1);
-  this.menu.pos.maxScroll = menu.length();
+
+function initLcd() {
+  displayMenu(menu.data);
+  setArrow(1);
+  //lcd.println(String.fromCharCode(126), 1);
+
+}
+function setArrow(position = menu.pos.arrow - menu.pos.scroll + 1) {
+  console.log(`
+setArrow(position: ${position})
+position % 2 + 1: ${position % 2 + 1}`);
+  lcd.println(String.fromCharCode(126), position);
+  lcd.println(" ", position % 2 + 1);
+}
+function displayMenu(dir = menu.data, index = menu.pos.scroll, prefix = " ") {
+  lcd.clear();
+  for(let i = 0; i < 2 && i < dir.length; i++)
+    lcd.println(prefix + dir[i + index].title, i + 1);
+  menu.pos.maxScroll = dir.length - 1;
+  console.log(`menu.pos.maxScroll: ${menu.pos.maxScroll}`);
 }
 
 function lcdChars() {
@@ -64,4 +118,4 @@ function lcdChars() {
 }
 lcd.on();
 //lcdChars();
-initLcd();
+initLcd(); 
