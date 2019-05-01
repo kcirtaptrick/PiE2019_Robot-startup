@@ -1,6 +1,7 @@
 const io = require('onoff').Gpio;
 const Lcd = require('lcdi2c');
 const childProcess = require('child_process')
+const fs = require('fs');
 const os = require('os');
 const readline = require('readline');
 
@@ -24,6 +25,8 @@ try {
 
 const ifaces = os.networkInterfaces();
 console.log(ifaces);
+
+const autoFile = "/home/pi/Autonomous/autonomous_motor-paths.json"
 
 var leds = [new io(2, 'out'), new io(3, 'out'), new io(4, 'out')];
 function setRgb(rgb) {
@@ -51,9 +54,25 @@ function initLeds() {
 initLeds();
 var lcd = new Lcd(3, 0x27, 16, 2);
 lcd.clear();
+
 var menu = {
   data: [{
-    title: "Autonomous"
+    title: "Autonomous",
+    type: "option",
+    children: {
+      select: (option) => {
+        
+      },
+      display: () => {
+        return JSON.parse(fs.readFileSync(autoFile)).map((x) => {
+          return {
+            title: x.title,
+            selected: x.selected
+          }
+        });
+      },
+      options: []
+    }
   }, {
     title: "Actions"
   }, {
@@ -66,16 +85,31 @@ var menu = {
     arrow: 0,
     scroll: 0,
     maxScroll: 0
+  },
+  trail: ["data"]
+}
+menu.current = () => {
+  current = menu;
+  for(crumb of menu.trail) {
+    current = current[crumb]
   }
+  return current;
+}
+menu.parent = (depth = 1) => {
+  current = menu;
+  for(let i = 0; i < menu.trail - depth; i++) {
+    current = current[menu.trail[i]];
+  }
+  return current;
 }
 menu.down = () => {
   console.log('\n\nmenu down');
-  console.log(`
-menu.pos.arrow: ${menu.pos.arrow},
-menu.pos.scroll: ${menu.pos.scroll},
-menu.pos.maxScroll: ${menu.pos.maxScroll},
-menu.pos.arrow (${menu.pos.arrow}) < menu.pos.maxScroll (${menu.pos.maxScroll}): ${menu.pos.arrow < menu.pos.maxScroll},
-menu.pos.arrow > menu.pos.scroll + 1: ${menu.pos.arrow > menu.pos.scroll + 1}`);
+//   console.log(`
+// menu.pos.arrow: ${menu.pos.arrow},
+// menu.pos.scroll: ${menu.pos.scroll},
+// menu.pos.maxScroll: ${menu.pos.maxScroll},
+// menu.pos.arrow (${menu.pos.arrow}) < menu.pos.maxScroll (${menu.pos.maxScroll}): ${menu.pos.arrow < menu.pos.maxScroll},
+// menu.pos.arrow > menu.pos.scroll + 1: ${menu.pos.arrow > menu.pos.scroll + 1}`);
   if(menu.pos.arrow < menu.pos.maxScroll) {
     menu.pos.arrow++;
     if(menu.pos.arrow > menu.pos.scroll + 1) {
@@ -84,11 +118,12 @@ menu.pos.arrow > menu.pos.scroll + 1: ${menu.pos.arrow > menu.pos.scroll + 1}`);
     }
   }
   setArrow();
-  console.log(`
-menu.pos.arrow: ${menu.pos.arrow},
-menu.pos.scroll: ${menu.pos.scroll},
-menu.pos.maxScroll: ${menu.pos.maxScroll}`);
+//   console.log(`
+// menu.pos.arrow: ${menu.pos.arrow},
+// menu.pos.scroll: ${menu.pos.scroll},
+// menu.pos.maxScroll: ${menu.pos.maxScroll}`);
 }
+        
 menu.up = () => {
   if(menu.pos.arrow > 0) {
     menu.pos.arrow--;
@@ -99,7 +134,16 @@ menu.up = () => {
   }
   setArrow();
 }
-
+menu.enter = () => {
+  selected = menu.current()[menu.pos.arrow];
+  if (menu.parent()
+  if (selected.type == "option") {
+    menu.trail.append([menu.pos.arrow, "children"]);
+    menu.current().options = menu.current().display()
+    menu.trail.append("options");
+    displayMenu();
+  }
+}
 function initLcd() {
   displayMenu(menu.data);
   setArrow(1);
@@ -113,7 +157,7 @@ position % 2 + 1: ${position % 2 + 1}`);
   lcd.println(String.fromCharCode(126), position);
   lcd.println(" ", position % 2 + 1);
 }
-function displayMenu(dir = menu.data, index = menu.pos.scroll, prefix = " ") {
+function displayMenu(dir = menu.current(), index = menu.pos.scroll, prefix = menu.prefix) {
   lcd.clear();
   for(let i = 0; i < 2 && i < dir.length; i++)
     lcd.println(prefix + dir[i + index].title, i + 1);
