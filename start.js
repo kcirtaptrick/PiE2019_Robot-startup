@@ -59,20 +59,18 @@ var menu = {
   data: [{
     title: "Autonomous",
     type: "option",
-    children: {
-      select: (option) => {
-        
-      },
-      display: () => {
-        return JSON.parse(fs.readFileSync(autoFile)).map((x) => {
-          return {
-            title: x.title,
-            selected: x.selected
-          }
-        });
-      },
-      options: []
-    }
+    select: (option) => {
+      
+    },
+    update: () => {
+      return JSON.parse(fs.readFileSync(autoFile)).map((x) => {
+        return {
+          title: x.title,
+          selected: x.selected
+        }
+      })
+    },
+    options: []
   }, {
     title: "Actions"
   }, {
@@ -136,13 +134,20 @@ menu.up = () => {
 }
 menu.enter = () => {
   selected = menu.current()[menu.pos.arrow];
-  if (menu.parent()
-  if (selected.type == "option") {
-    menu.trail.append([menu.pos.arrow, "children"]);
-    menu.current().options = menu.current().display()
+  if (menu.parent().type == "option") {
+    menu.current().select(menu.pos.arrow);
+    menu.back();
+  } else if (selected.type == "option") {
+    menu.trail.append(menu.pos.arrow);
+    menu.current().options = menu.current().update();
     menu.trail.append("options");
     displayMenu();
   }
+}
+menu.back = (depth = 2) => {
+  for (let i = 0; i < 2; i++) 
+    menu.trail.pop();
+  displayMenu();
 }
 function initLcd() {
   displayMenu(menu.data);
