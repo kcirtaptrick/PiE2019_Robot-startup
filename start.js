@@ -25,16 +25,28 @@ try {
 const ifaces = os.networkInterfaces();
 console.log(ifaces);
 
-var leds = [new io(5, 'out'), new io(6, 'out'), new io(13, 'out')];
-function initLeds() {
-  for(var led of leds) {
-    led.writeSync(0);
+var leds = [new io(2, 'out'), new io(3, 'out'), new io(4, 'out')];
+function setRgb(rgb) {
+  for(let i in rgb){
+    console.log(!rgb[i]);
+    leds[i].writeSync((rgb[i] + 1) % 2);
   }
+}
+function initLeds() {
+  setRgb([1, 0, 0]);
   setTimeout(() => {
-    for(var led of leds) {
-      led.writeSync(1);
-    }
-  }, 500);
+    setRgb([0, 1, 0]);
+  }, 2000);
+  setTimeout(() => {
+    setRgb([0, 0, 1]);
+  }, 2500);
+  setTimeout(() => {
+    setRgb([1, 1, 1])
+  }, 3000);
+  setTimeout(() => {
+    setRgb([0, 0, 0])
+  }, 3500);
+
 }
 initLeds();
 var lcd = new Lcd(3, 0x27, 16, 2);
@@ -42,6 +54,8 @@ lcd.clear();
 var menu = {
   data: [{
     title: "Autonomous"
+  }, {
+    title: "Actions"
   }, {
     title: "Info"
   }, {
