@@ -186,8 +186,10 @@ position % 2 + 1: ${position % 2 + 1}`);
 }
 function displayMenu(dir = menu.current(), index = menu.pos.scroll, prefix = menu.prefix) {
   lcd.clear();
-  for(let i = 0; i < 2 && i < dir.length; i++)
+  for(let i = 0; i < 2 && i < dir.length; i++) {
     lcd.println(prefix + dir[i + index].title, i + 1);
+    console.log("prefix: \"" + prefix + "\", dir[i + index].title: " + dir[i + index].title + ", i" + i);
+  }
   menu.pos.maxScroll = dir.length - 1;
   console.log(`menu.pos.maxScroll: ${menu.pos.maxScroll}`);
 }
