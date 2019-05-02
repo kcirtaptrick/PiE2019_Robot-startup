@@ -164,6 +164,7 @@ menu.enter = () => {
     menu.trail.push(menu.pos.arrow);
     menu.current().options = menu.current().update();
     menu.trail.push("options");
+    console.log(menu.current());
     displayMenu();
   }
 }
