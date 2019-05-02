@@ -100,6 +100,7 @@ var menu = {
       
     }]
   }],
+  prefix: " ",
   fns: {},
   pos: {
     arrow: 0,
