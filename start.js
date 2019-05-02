@@ -107,24 +107,19 @@ var menu = {
       
     }]
   }],
-  buttons: {
-    up: {
-      pin: 17,
-      action: "up"
-    },
-    down: {
-      pin: 10,
-      action: "down"
-    },
-    left: {
-      pin: 22,
-      action: "back"
-    },
-    right: {
-      pin: 27,
-      action: "enter"
-    }
-  },
+  buttons: [{
+    pin: 17,
+    action: "up"
+  }, {
+    pin: 10,
+    action: "down"
+  }, {
+    pin: 22,
+    action: "back"
+  }, {
+    pin: 27,
+    action: "enter"
+  }],
   prefix: " ",
   fns: {},
   pos: {
