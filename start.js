@@ -17,6 +17,8 @@ try {
       menu.up();
     } else if(key.name == "down") {
       menu.down();
+    } else if(key.name == "return") {
+      menu.enter();
     }
   });
 } catch(e) {
