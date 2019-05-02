@@ -56,27 +56,29 @@ initLeds();
 var lcd = new Lcd(3, 0x27, 16, 2);
 lcd.clear();
 
-var buttons = {
-  up: 17,
-  down: 10,
-  left: 22,
-  right: 27
-}
 
 var menu = {
   data: [{
     title: "Autonomous",
     type: "option",
     select: (option) => {
-      
+      data = JSON.parse(fs.readFileSync(autoFile));
+      data.selected = option;
+      fs.writeFile(autoFile, JSON.stringify(JSON.parse(fs.readFileSync(autoFile)).selected
     },
     update: () => {
-      return JSON.parse(fs.readFileSync(autoFile)).map((x) => {
+      paths = JSON.parse(fs.readFileSync(autoFile)).paths
+      
+      return [{
+        title: "Last",
+        selected: true
+      },
+      ...paths.map((x) => {
         return {
           title: x.title,
           selected: x.selected
         }
-      })
+      })]
     },
     options: []
   }, {
