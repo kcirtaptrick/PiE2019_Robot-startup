@@ -72,11 +72,32 @@ var menu = {
     },
     options: []
   }, {
-    title: "Actions"
+    title: "Actions",
+    type: "
   }, {
     title: "Info"
   }, {
-    title: "Settings"
+    title: "Settings",
+    type: "menu",
+    items: [{
+      title: "LCD",
+      type: "menu",
+      items: [{
+        title: "Brightness",
+        type: "setting",
+        setting: {
+          type: "slider",
+          change: (value, total = 16) => {
+            
+          },
+          get: () => {
+            
+        },
+        
+        
+    }, {
+      
+    }]
   }],
   fns: {},
   pos: {
