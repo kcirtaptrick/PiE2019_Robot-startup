@@ -73,7 +73,7 @@ var menu = {
     options: []
   }, {
     title: "Actions",
-    type: "
+    type: "menu"
   }, {
     title: "Info"
   }, {
@@ -159,9 +159,9 @@ menu.enter = () => {
     menu.current().select(menu.pos.arrow);
     menu.back();
   } else if (selected.type == "option") {
-    menu.trail.append(menu.pos.arrow);
+    menu.trail.push(menu.pos.arrow);
     menu.current().options = menu.current().update();
-    menu.trail.append("options");
+    menu.trail.push("options");
     displayMenu();
   }
 }
