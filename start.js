@@ -110,7 +110,7 @@ var menu = {
   buttons: {
     up: {
       pin: 17,
-      action: "up
+      action: "up"
     },
     down: {
       pin: 10,
@@ -171,6 +171,7 @@ menu.down = () => {
 }
         
 menu.up = () => {
+  console.log('\n\nmenu up');
   if(menu.pos.arrow > 0) {
     menu.pos.arrow--;
     if(menu.pos.arrow < menu.pos.scroll) {
@@ -181,6 +182,7 @@ menu.up = () => {
   setArrow();
 }
 menu.enter = () => {
+  console.log('\n\nmenu enter');
   selected = menu.current()[menu.pos.arrow];
   if (menu.parent().type == "option") {
     menu.current().select(menu.pos.arrow);
@@ -195,6 +197,7 @@ menu.enter = () => {
   }
 }
 menu.back = (depth = 2) => {
+  console.log('\n\nmenu back');
   for (let i = 0; i < 2; i++) 
     menu.trail.pop();
   displayMenu();
