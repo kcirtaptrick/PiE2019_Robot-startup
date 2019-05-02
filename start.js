@@ -202,7 +202,7 @@ function initMenu() {
   setArrow(1);
   for(let button of menu.buttons) {
     button.io = new io(button.pin, 'in', 'rising', {debounceTimeout: 10});
-    button.watch((err, value) => {
+    button.io.watch((err, value) => {
       err && console.log(err);
       menu[button.action]
     });
