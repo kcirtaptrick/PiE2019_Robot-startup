@@ -33,7 +33,6 @@ const autoFile = "/home/pi/Autonomous/autonomous_motor-paths.json"
 var leds = [new io(2, 'out'), new io(3, 'out'), new io(4, 'out')];
 function setRgb(rgb) {
   for(let i in rgb){
-    console.log(!rgb[i]);
     leds[i].writeSync((rgb[i] + 1) % 2);
   }
 }
@@ -96,7 +95,7 @@ var menu = {
             
           }
         },
-        
+      }
         
     }, {
       
