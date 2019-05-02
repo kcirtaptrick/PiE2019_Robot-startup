@@ -50,11 +50,18 @@ function initLeds() {
   setTimeout(() => {
     setRgb([0, 0, 0])
   }, 3500);
-
 }
+
 initLeds();
 var lcd = new Lcd(3, 0x27, 16, 2);
 lcd.clear();
+
+var buttons = {
+  up: 17,
+  down: 10,
+  left: 22,
+  right: 27
+}
 
 var menu = {
   data: [{
@@ -100,6 +107,24 @@ var menu = {
       
     }]
   }],
+  buttons: {
+    up: {
+      pin: 17,
+      action: "up
+    },
+    down: {
+      pin: 10,
+      action: "down"
+    },
+    left: {
+      pin: 22,
+      action: "back"
+    },
+    right: {
+      pin: 27,
+      action: "enter"
+    }
+  },
   prefix: " ",
   fns: {},
   pos: {
@@ -166,6 +191,7 @@ menu.enter = () => {
     menu.trail.push("options");
     console.log(menu.current());
     displayMenu();
+    setArrow(1);
   }
 }
 menu.back = (depth = 2) => {
@@ -173,9 +199,17 @@ menu.back = (depth = 2) => {
     menu.trail.pop();
   displayMenu();
 }
-function initLcd() {
+function initMenu() {
   displayMenu(menu.data);
   setArrow(1);
+  for(let button of menu.buttons) {
+    button.io = new io(button.pin, 'in', 'rising', {debounceTimeout: 10});
+    button.watch((err, value) => {
+      err && console.log(err);
+      menu[button.action]
+    });
+          
+  }
   //lcd.println(String.fromCharCode(126), 1);
 
 }
@@ -207,4 +241,4 @@ function lcdChars() {
 }
 lcd.on();
 //lcdChars();
-initLcd(); 
+initMenu(); 
