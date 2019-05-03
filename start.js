@@ -63,13 +63,13 @@ var menu = {
     type: "option",
     select: (option) => {
       data = JSON.parse(fs.readFileSync(autoFile));
-      data.selected = option;
+      data.selected = option - 1;
       fs.writeFile(autoFile, JSON.stringify(data))
     },
     delete: (option) => {
       
     },
-    update: () => {
+    retrive: () => {
       data = JSON.parse(fs.readFileSync(autoFile))
       options = [{
         title: "Last",
@@ -82,6 +82,7 @@ var menu = {
         }
       })]
       options[data.selected + 1].selected = true
+      return options;
     },
     options: []
   }, {
@@ -189,7 +190,7 @@ menu.enter = () => {
     menu.back();
   } else if (selected.type == "option") {
     menu.trail.push(menu.pos.arrow);
-    menu.current().options = menu.current().update();
+    menu.current().options = menu.current().retrieve();
     menu.trail.push("options");
     console.log(menu.current());
     displayMenu();
@@ -201,6 +202,7 @@ menu.back = (depth = 2) => {
   for (let i = 0; i < 2; i++) 
     menu.trail.pop();
   displayMenu();
+  setArrow(1);
 }
 function initMenu() {
   displayMenu(menu.data);
