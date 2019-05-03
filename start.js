@@ -64,21 +64,24 @@ var menu = {
     select: (option) => {
       data = JSON.parse(fs.readFileSync(autoFile));
       data.selected = option;
-      fs.writeFile(autoFile, JSON.stringify(JSON.parse(fs.readFileSync(autoFile)).selected
+      fs.writeFile(autoFile, JSON.stringify(data))
+    },
+    delete: (option) => {
+      
     },
     update: () => {
-      paths = JSON.parse(fs.readFileSync(autoFile)).paths
-      
-      return [{
+      data = JSON.parse(fs.readFileSync(autoFile))
+      options = [{
         title: "Last",
-        selected: true
+        selected: false
       },
-      ...paths.map((x) => {
+      ...data.paths.map((x) => {
         return {
           title: x.title,
-          selected: x.selected
+          selected: false
         }
       })]
+      options[data.selected + 1].selected = true
     },
     options: []
   }, {
