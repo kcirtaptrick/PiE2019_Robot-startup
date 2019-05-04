@@ -1,6 +1,8 @@
 const io = require('onoff').Gpio;
 const Lcd = require('lcdi2c');
-const j5 = require('johnny-five');
+const i2c = require('i2c-bus');
+const pca = require("pca9685").Pca9685Driver;
+const mpu6050 = require("mpu6050");
 const childProcess = require('child_process')
 const fs = require('fs');
 const os = require('os');
@@ -57,27 +59,47 @@ initLeds();
 var lcd = new Lcd(3, 0x27, 16, 2);
 lcd.clear();
 
-var board = j5.Board();
-board.on('ready', () => {
-  console.log("Johnny-five board has been initialized");
-  var left = new five.Servo({
-    address: 0x40,
-    controller: "PCA9685",
-    pin: 0,
-    range: [0, 180]
-  });
-  var right = new five.Servo({
-    address: 0x40,
-    controller: "PCA9685",
-    pin: 1,
-    range: [0, 180]
-  });
-  var flag = false
-  setInterval(() => {
-    left.to(flag ? 180 : 0);
-    right.to(flag ? 0 : 180);
-  }, 500);
+var mpu = new mpu6050();
+mpu.initialize();
+mpu.testConnection(function(err, testPassed) {
+  if (testPassed) {
+    mpu.getMotion6(function(err, data){
+      console.log(data);
+    });
+    mpu.setSleepEnabled(1);
+  }
 });
+
+var pwm = new pca({
+  i2c: i2cBus.openSync(3),
+  address: 0x40,
+  frequency: 50,
+  debug: false
+}, (err) => {
+  console.log(err ? "Error initializing PCA9685" : "PCA9685 Initialized");
+  var servo = {
+    left: {
+      pin: 0,
+      min: 1000,
+      max: 2000
+    },
+    right: {
+      pin: 1,
+      min: 1000,
+      max: 2000
+    }
+  }
+  servo.set = (servoID, percent) => {
+    s = servo['servoID'];
+    pwm.setPulseLength(s.pin, s.min + (s.max - s.min) * percent);
+  }
+  let flag = false;
+  setInterval(() => {
+    servo.set('left', flag ? 0 : 1);
+    servo.set('right', flag ? 1 : 0);
+  }, 500);
+})
+
 
 var menu = {
   data: [{
