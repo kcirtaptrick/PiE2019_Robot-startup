@@ -1,0 +1,25 @@
+{
+  "name": "startup_process",
+  "version": "1.0.0",
+  "description": "",
+  "main": "start.js",
+  "dependencies": {
+    "johnny-five": "^1.0.0",
+    "lcdi2c": "^1.0.6",
+    "onoff": "^4.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://kcirtaptrick@github.com/kcirtaptrick/PiE2019_Robot-startup.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kcirtaptrick/PiE2019_Robot-startup/issues"
+  },
+  "homepage": "https://github.com/kcirtaptrick/PiE2019_Robot-startup#readme"
+}
