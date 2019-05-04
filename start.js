@@ -1,5 +1,6 @@
 const io = require('onoff').Gpio;
 const Lcd = require('lcdi2c');
+const j5 = require('johnny-five');
 const childProcess = require('child_process')
 const fs = require('fs');
 const os = require('os');
@@ -56,6 +57,27 @@ initLeds();
 var lcd = new Lcd(3, 0x27, 16, 2);
 lcd.clear();
 
+var board = j5.Board();
+board.on('ready', () => {
+  console.log("Johnny-five board has been initialized");
+  var left = new five.Servo({
+    address: 0x40,
+    controller: "PCA9685",
+    pin: 0,
+    range: [0, 180]
+  });
+  var right = new five.Servo({
+    address: 0x40,
+    controller: "PCA9685",
+    pin: 1,
+    range: [0, 180]
+  });
+  var flag = false
+  setInterval(() => {
+    left.to(flag ? 180 : 0);
+    right.to(flag ? 0 : 180);
+  }, 500);
+});
 
 var menu = {
   data: [{
@@ -244,6 +266,9 @@ function lcdChars() {
     console.log(str);
   }
 }
+
+
+
 lcd.on();
 //lcdChars();
 initMenu(); 
